@@ -1,12 +1,12 @@
 version: "3.7"
 services:
   api:
-    container_name: api
+    container_name: api_dev
     build: ./api/
     ports:
-      - "3001:3000"
+      - "4001:3000"
     networks:
-      - live_net
+      - dev_net
     depends_on:
       - postgres
     environment:
@@ -15,31 +15,34 @@ services:
       - DB_PORT=5432
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
-      - DB_DATABASE=live
+      - DB_DATABASE=dev
       - HASH_SALT=10
+    volumes:
+      - ./:/usr/src/app
+    command: yarn start:dev
   postgres:
-    container_name: postgres
+    container_name: postgres_dev
     image: postgres
     ports:
       - "4002:5432"
     volumes:
-      - postgres_data_live:/var/lib/postgresql/data/
+      - postgres_data_dev:/var/lib/postgresql/data/
     networks:
-      - live_net
+      - dev_net
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
-      POSTGRES_DB: live
+      POSTGRES_DB: dev
   web:
-    container_name: web
+    container_name: web_dev
     build: 
       context: ./web/
       args:
-        - BASE_API_URL=http://localhost:3001
+        - BASE_API_URL=http://localhost:4001
     ports:
-      - "3000:80"
+      - "4000:80"
 
 networks:
-  live_net:
+  dev_net:
 volumes:
-  postgres_data_live:
+  postgres_data_dev:
